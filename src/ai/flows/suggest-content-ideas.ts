@@ -1,12 +1,3 @@
-// 'use server';
-/**
- * @fileOverview This file defines a Genkit flow for suggesting content ideas based on a given topic.
- *
- * - suggestContentIdeas - A function that takes a topic as input and returns a list of content ideas.
- * - SuggestContentIdeasInput - The input type for the suggestContentIdeas function, containing the topic.
- * - SuggestContentIdeasOutput - The output type for the suggestContentIdeas function, containing an array of content ideas.
- */
-
 'use server';
 
 import {ai} from '@/ai/ai-instance';
@@ -42,7 +33,7 @@ const suggestContentIdeasPrompt = ai.definePrompt({
       ).describe('A list of content ideas.'),
     }),
   },
-  prompt: `You are a content creation expert. Generate a list of creative and engaging content ideas based on the following topic: {{{topic}}}. Return the ideas in the output schema.`,
+  prompt: `당신은 콘텐츠 제작 전문가입니다. 다음 주제에 따라 창의적이고 매력적인 콘텐츠 아이디어 목록을 한국어로 생성하세요: {{{topic}}}. 출력 스키마에 따라 아이디어를 반환하세요.`,
 });
 
 const suggestContentIdeasFlow = ai.defineFlow<
@@ -57,3 +48,4 @@ async input => {
   const {output} = await suggestContentIdeasPrompt(input);
   return output!;
 });
+
