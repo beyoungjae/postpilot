@@ -64,20 +64,20 @@ const prompt = ai.definePrompt({
       sentence: z.string().describe('The generated sentence.'),
     }),
   },
-  prompt: `You are an expert copywriter. You will generate a sentence that naturally incorporates the given keywords. The sentence should be engaging and relevant to the context of sponsored posts and ads.
+  prompt: `당신은 전문 카피라이터입니다. 주어진 키워드를 자연스럽게 포함하는 문장을 생성합니다. 이 문장은 협찬 포스트 및 광고의 맥락에 적합해야 합니다.
 
-Keywords: {{{keywords}}}
+키워드: {{{keywords}}}
 
 {{#if styleGuide}}
-Style Guide: {{{styleGuide}}}
+스타일 가이드: {{{styleGuide}}}
 {{/if}}
 
 {{#if samplePostUrl}}
-I have provided the URL of another post, study the tone and style of that post, and use that to inform your writing.
+다른 게시물의 URL을 제공했으니, 해당 게시물의 어조와 스타일을 연구하여 글쓰기에 반영하십시오.
 URL: {{{samplePostUrl}}}
 {{/if}}
 
-Sentence:`,
+문장:`,
 });
 
 const generateSentenceFromKeywordsFlow = ai.defineFlow<
