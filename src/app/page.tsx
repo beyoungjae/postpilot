@@ -5,7 +5,6 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/compo
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Textarea} from '@/components/ui/textarea';
-import {SNSPlatform} from '@/services/sns';
 import {generateSentenceFromKeywords} from '@/ai/flows/generate-sentence-from-keywords';
 import {suggestContentIdeas} from '@/ai/flows/suggest-content-ideas';
 import {toast} from '@/hooks/use-toast';
@@ -87,14 +86,6 @@ export default function Home() {
       };
       reader.readAsDataURL(file);
     }
-  };
-
-  const handlePublishToSNS = async (platform: SNSPlatform) => {
-    // Placeholder for SNS publishing logic
-    toast({
-      title: `Published to ${platform}`,
-      description: 'Content has been published successfully.',
-    });
   };
 
   return (
@@ -191,18 +182,6 @@ export default function Home() {
               </ul>
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>SNS 연동</CardTitle>
-          <CardDescription>생성된 콘텐츠를 SNS에 게시합니다.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4">
-          <Button onClick={() => handlePublishToSNS('facebook')}>Facebook에 게시</Button>
-          <Button onClick={() => handlePublishToSNS('twitter')}>Twitter에 게시</Button>
-          <Button onClick={() => handlePublishToSNS('instagram')}>Instagram에 게시</Button>
         </CardContent>
       </Card>
 
