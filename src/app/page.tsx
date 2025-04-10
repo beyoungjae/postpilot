@@ -4,13 +4,14 @@ import React, {useState, useRef, useEffect} from 'react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
-import {Textarea} from '@/components/ui/textarea';
+import {Textarea} from '@/components/ui/textarea'; //Corrected import
 import {generateSentenceFromKeywords} from '@/ai/flows/generate-sentence-from-keywords';
 import {suggestContentIdeas} from '@/ai/flows/suggest-content-ideas';
 import {toast} from '@/hooks/use-toast';
 import {generateSentencesFromImage} from '@/ai/flows/generate-sentences-from-image';
 import {Label} from "@/components/ui/label";
 import {Switch} from "@/components/ui/switch";
+import {analyzeStyleFromUrl} from '@/ai/flows/analyze-style-from-url';
 
 async function generateSentence(keywords: string, styleGuide: string, samplePostUrl: string) {
   try {
@@ -54,6 +55,20 @@ async function generateImageSentences(imageUrl: string) {
   }
 }
 
+async function analyzeURL(url: string) {
+    try {
+        const result = await analyzeStyleFromUrl({ url });
+        return result.styleGuide;
+    } catch (e: any) {
+        toast({
+            title: 'Error analyzing URL',
+            description: e.message,
+            variant: 'destructive',
+        });
+        return '';
+    }
+}
+
 export default function Home() {
   const [keywords, setKeywords] = React.useState('');
   const [styleGuide, setStyleGuide] = React.useState('');
@@ -67,6 +82,7 @@ export default function Home() {
   const [editorContent, setEditorContent] = useState('');
     const [urlForStyle, setUrlForStyle] = useState('');
     const [isStyleInferenceEnabled, setIsStyleInferenceEnabled] = useState(false);
+    const [analyzedStyleGuide, setAnalyzedStyleGuide] = useState('');
 
   const handleGenerateSentence = async () => {
     const sentence = await generateSentence(keywords, styleGuide, samplePostUrl);
@@ -93,6 +109,32 @@ export default function Home() {
       reader.readAsDataURL(file);
     }
   };
+
+    useEffect(() => {
+        async function fetchStyleGuide() {
+            if (isStyleInferenceEnabled && urlForStyle) {
+                const styleGuide = await analyzeURL(urlForStyle);
+                setAnalyzedStyleGuide(styleGuide);
+            } else {
+                setAnalyzedStyleGuide('');
+            }
+        }
+
+        fetchStyleGuide();
+    }, [isStyleInferenceEnabled, urlForStyle]);
+
+    const handleEditorContentChange = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setEditorContent(e.target.value);
+        if (isStyleInferenceEnabled && analyzedStyleGuide && e.target.value) {
+            // Generate a sentence based on the current input, style guide, and keywords
+            const keywords = e.target.value.split(' ').slice(-3).join(' '); // Use last 3 words as keywords
+            const sentence = await generateSentence(keywords, analyzedStyleGuide, '');
+            // Append the generated sentence to the editor content
+            if (sentence) {
+                setEditorContent(prevContent => prevContent + ' ' + sentence);
+            }
+        }
+    };
 
   return (
     <div className="container mx-auto p-4 flex flex-col gap-4">
@@ -140,7 +182,7 @@ export default function Home() {
                     <Textarea
                         placeholder="여기에 글을 작성하세요..."
                         value={editorContent}
-                        onChange={(e) => setEditorContent(e.target.value)}
+                        onChange={handleEditorContentChange}
                     />
                     <Input
                         type="url"
