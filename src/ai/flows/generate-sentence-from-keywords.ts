@@ -64,7 +64,7 @@ const prompt = ai.definePrompt({
       sentence: z.string().describe('The generated sentence.'),
     }),
   },
-  prompt: `당신은 전문 카피라이터입니다. 주어진 키워드를 자연스럽게 포함하는 문장을 생성합니다. 이 문장은 협찬 포스트 및 광고의 맥락에 적합해야 합니다.
+  prompt: `당신은 전문 카피라이터입니다. 주어진 키워드를 자연스럽게 포함하는 문장을 생성합니다. 이 문장은 협찬 포스트 및 광고의 맥락에 적합해야 합니다. 기본적으로 한국어를 사용하여 문장을 생성하십시오.
 
 키워드: {{{keywords}}}
 

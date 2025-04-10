@@ -39,7 +39,7 @@ const prompt = ai.definePrompt({
       styleGuide: z.string().describe('A guide for writing style, tone, and manner based on the analyzed URL.'),
     }),
   },
-  prompt: `You are an expert writing style analyzer. You will analyze the content of the given URL and extract key characteristics of the writing style, including tone, vocabulary, sentence structure, and overall manner. Based on your analysis, you will create a style guide that can be used to mimic the writing style of the content at the URL.
+  prompt: `귀하는 글쓰기 스타일 분석 전문가입니다. 주어진 URL의 콘텐츠를 분석하고 어조, 어휘, 문장 구조, 전반적인 태도 등 글쓰기 스타일의 주요 특징을 추출합니다. 분석 결과를 바탕으로 URL에 있는 콘텐츠의 글쓰기 스타일을 모방하는 데 사용할 수 있는 스타일 가이드를 만들게 됩니다.
 
 URL: {{{url}}}
 
