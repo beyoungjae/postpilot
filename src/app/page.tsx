@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -9,6 +9,8 @@ import {generateSentenceFromKeywords} from '@/ai/flows/generate-sentence-from-ke
 import {suggestContentIdeas} from '@/ai/flows/suggest-content-ideas';
 import {toast} from '@/hooks/use-toast';
 import {generateSentencesFromImage} from '@/ai/flows/generate-sentences-from-image';
+import {Label} from "@/components/ui/label";
+import {Switch} from "@/components/ui/switch";
 
 async function generateSentence(keywords: string, styleGuide: string, samplePostUrl: string) {
   try {
@@ -61,6 +63,10 @@ export default function Home() {
   const [contentIdeas, setContentIdeas] = React.useState<string[]>([]);
   const [imageUrl, setImageUrl] = React.useState('');
   const [imageSentences, setImageSentences] = React.useState<string[]>([]);
+
+  const [editorContent, setEditorContent] = useState('');
+    const [urlForStyle, setUrlForStyle] = useState('');
+    const [isStyleInferenceEnabled, setIsStyleInferenceEnabled] = useState(false);
 
   const handleGenerateSentence = async () => {
     const sentence = await generateSentence(keywords, styleGuide, samplePostUrl);
@@ -124,6 +130,39 @@ export default function Home() {
           )}
         </CardContent>
       </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>글쓰기 에디터</CardTitle>
+                    <CardDescription>URL 분석 스타일 참조로 글쓰기 보조(자동 완성)를 사용해 보세요.</CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                    <Textarea
+                        placeholder="여기에 글을 작성하세요..."
+                        value={editorContent}
+                        onChange={(e) => setEditorContent(e.target.value)}
+                    />
+                    <Input
+                        type="url"
+                        placeholder="스타일 참조 URL"
+                        value={urlForStyle}
+                        onChange={(e) => setUrlForStyle(e.target.value)}
+                    />
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="style-inference">스타일 분석 기반 자동 완성</Label>
+                        <Switch
+                            id="style-inference"
+                            checked={isStyleInferenceEnabled}
+                            onCheckedChange={setIsStyleInferenceEnabled}
+                        />
+                    </div>
+                    {isStyleInferenceEnabled && (
+                        <div>
+                            <p>현재 {urlForStyle} 스타일을 분석하여 문장 자동 완성을 제공합니다.</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
       <Card>
         <CardHeader>
