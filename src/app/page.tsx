@@ -137,8 +137,8 @@ export default function Home() {
                 setEditorContent(prevContent => prevContent + ' ' + suggestedSentence);
                 setSuggestedSentence(''); // Clear the suggested sentence after adding it
             }
-        } else if (isStyleInferenceEnabled && analyzedStyleGuide && !suggestedSentence) {
-            // Fetch a new suggested sentence
+        } else if (isStyleInferenceEnabled && analyzedStyleGuide && (e.key === ' ' || e.key === 'Enter')) {
+            e.preventDefault();
             await fetchSentence();
         }
     };
