@@ -9,10 +9,11 @@ import {SNSPlatform} from '@/services/sns';
 import {generateSentenceFromKeywords} from '@/ai/flows/generate-sentence-from-keywords';
 import {suggestContentIdeas} from '@/ai/flows/suggest-content-ideas';
 import {toast} from '@/hooks/use-toast';
+import {generateSentencesFromImage} from '@/ai/flows/generate-sentences-from-image';
 
-async function generateSentence(keywords: string, styleGuide: string) {
+async function generateSentence(keywords: string, styleGuide: string, samplePostUrl: string) {
   try {
-    const result = await generateSentenceFromKeywords({keywords, styleGuide});
+    const result = await generateSentenceFromKeywords({keywords, styleGuide, samplePostUrl});
     return result.sentence;
   } catch (e: any) {
     toast({
@@ -38,21 +39,54 @@ async function generateIdeas(topic: string) {
   }
 }
 
+async function generateImageSentences(imageUrl: string) {
+  try {
+    const result = await generateSentencesFromImage({imageUrl});
+    return result.sentences;
+  } catch (e: any) {
+    toast({
+      title: 'Error generating sentences from image',
+      description: e.message,
+      variant: 'destructive',
+    });
+    return [];
+  }
+}
+
 export default function Home() {
   const [keywords, setKeywords] = React.useState('');
   const [styleGuide, setStyleGuide] = React.useState('');
+  const [samplePostUrl, setSamplePostUrl] = React.useState('');
   const [generatedSentence, setGeneratedSentence] = React.useState('');
   const [topic, setTopic] = React.useState('');
   const [contentIdeas, setContentIdeas] = React.useState<string[]>([]);
+  const [imageUrl, setImageUrl] = React.useState('');
+  const [imageSentences, setImageSentences] = React.useState<string[]>([]);
 
   const handleGenerateSentence = async () => {
-    const sentence = await generateSentence(keywords, styleGuide);
+    const sentence = await generateSentence(keywords, styleGuide, samplePostUrl);
     setGeneratedSentence(sentence);
   };
 
   const handleGenerateIdeas = async () => {
     const ideas = await generateIdeas(topic);
     setContentIdeas(ideas);
+  };
+
+  const handleGenerateImageSentences = async () => {
+    const sentences = await generateImageSentences(imageUrl);
+    setImageSentences(sentences);
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handlePublishToSNS = async (platform: SNSPlatform) => {
@@ -84,11 +118,49 @@ export default function Home() {
             value={styleGuide}
             onChange={(e) => setStyleGuide(e.target.value)}
           />
+          <Input
+            type="text"
+            placeholder="스타일 참조 URL (선택 사항)"
+            value={samplePostUrl}
+            onChange={(e) => setSamplePostUrl(e.target.value)}
+          />
           <Button onClick={handleGenerateSentence}>문장 생성</Button>
           {generatedSentence && (
             <div className="border rounded-md p-2 mt-2">
               <strong>생성된 문장:</strong>
               <p>{generatedSentence}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>이미지 기반 문장 추천</CardTitle>
+          <CardDescription>이미지에 맞는 문장을 추천합니다.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+          />
+          {imageUrl && (
+            <img src={imageUrl} alt="Uploaded" className="max-h-48 rounded-md" />
+          )}
+          <Button onClick={handleGenerateImageSentences} disabled={!imageUrl}>
+            문장 추천 받기
+          </Button>
+          {imageSentences.length > 0 && (
+            <div className="mt-2">
+              <strong>추천 문장:</strong>
+              <ul>
+                {imageSentences.map((sentence, index) => (
+                  <li key={index} className="list-disc ml-4">
+                    {sentence}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </CardContent>
