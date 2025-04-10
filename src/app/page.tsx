@@ -12,6 +12,7 @@ import {generateSentencesFromImage} from '@/ai/flows/generate-sentences-from-ima
 import {Label} from "@/components/ui/label";
 import {Switch} from "@/components/ui/switch";
 import {analyzeStyleFromUrl} from '@/ai/flows/analyze-style-from-url';
+import { Icons } from '@/components/icons';
 
 async function generateSentence(keywords: string, styleGuide: string, samplePostUrl: string) {
   try {
@@ -136,14 +137,21 @@ export default function Home() {
                 setEditorContent(prevContent => prevContent + ' ' + suggestedSentence);
                 setSuggestedSentence(''); // Clear the suggested sentence after adding it
             }
-        } else if (isStyleInferenceEnabled && analyzedStyleGuide) {
+        } else if (isStyleInferenceEnabled && analyzedStyleGuide && !suggestedSentence) {
             // Fetch a new suggested sentence
-            const keywords = e.currentTarget.value.split(' ').slice(-3).join(' '); // Use last 3 words as keywords
-            const sentence = await generateSentence(keywords, analyzedStyleGuide, '');
-            if (sentence) {
-                setSuggestedSentence(sentence);
-            }
+            await fetchSentence();
         }
+    };
+
+    const fetchSentence = async () => {
+      const keywords = editorContent.split(' ').slice(-3).join(' '); // Use last 3 words as keywords
+      const sentence = await generateSentence(keywords, analyzedStyleGuide, '');
+      if (sentence) {
+          setSuggestedSentence(sentence);
+      }
+    }
+    const handleRefreshSentence = async () => {
+        await fetchSentence();
     };
 
   return (
@@ -196,9 +204,17 @@ export default function Home() {
                         onKeyDown={handleKeyDown}
                     />
                     {suggestedSentence && (
-                        <div className="mt-2">
+                        <div className="mt-2 flex items-center space-x-2">
                             <strong>자동 완성 제안:</strong>
                             <p>{suggestedSentence}</p>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleRefreshSentence}
+                            >
+                                <Icons.refresh className="h-4 w-4" />
+                                <span className="sr-only">Refresh Suggestion</span>
+                            </Button>
                         </div>
                     )}
                     <Input
