@@ -83,6 +83,8 @@ export default function Home() {
     const [urlForStyle, setUrlForStyle] = useState('');
     const [isStyleInferenceEnabled, setIsStyleInferenceEnabled] = useState(false);
     const [analyzedStyleGuide, setAnalyzedStyleGuide] = useState('');
+  const [suggestedSentence, setSuggestedSentence] = useState('');
+
 
   const handleGenerateSentence = async () => {
     const sentence = await generateSentence(keywords, styleGuide, samplePostUrl);
@@ -123,15 +125,23 @@ export default function Home() {
         fetchStyleGuide();
     }, [isStyleInferenceEnabled, urlForStyle]);
 
-    const handleEditorContentChange = async (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleEditorContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setEditorContent(e.target.value);
-        if (isStyleInferenceEnabled && analyzedStyleGuide && e.target.value) {
-            // Generate a sentence based on the current input, style guide, and keywords
-            const keywords = e.target.value.split(' ').slice(-3).join(' '); // Use last 3 words as keywords
+    };
+
+    const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (isStyleInferenceEnabled && analyzedStyleGuide && e.key === 'Tab') {
+            e.preventDefault();
+            if (suggestedSentence) {
+                setEditorContent(prevContent => prevContent + ' ' + suggestedSentence);
+                setSuggestedSentence(''); // Clear the suggested sentence after adding it
+            }
+        } else if (isStyleInferenceEnabled && analyzedStyleGuide) {
+            // Fetch a new suggested sentence
+            const keywords = e.currentTarget.value.split(' ').slice(-3).join(' '); // Use last 3 words as keywords
             const sentence = await generateSentence(keywords, analyzedStyleGuide, '');
-            // Append the generated sentence to the editor content
             if (sentence) {
-                setEditorContent(prevContent => prevContent + ' ' + sentence);
+                setSuggestedSentence(sentence);
             }
         }
     };
@@ -180,10 +190,17 @@ export default function Home() {
                 </CardHeader>
                 <CardContent className="grid gap-4">
                     <Textarea
-                        placeholder="여기에 글을 작성하세요..."
+                        placeholder="여기에 글을 작성하세요... Tab 키를 누르면 자동 완성된 문장이 추가됩니다."
                         value={editorContent}
                         onChange={handleEditorContentChange}
+                        onKeyDown={handleKeyDown}
                     />
+                    {suggestedSentence && (
+                        <div className="mt-2">
+                            <strong>자동 완성 제안:</strong>
+                            <p>{suggestedSentence}</p>
+                        </div>
+                    )}
                     <Input
                         type="url"
                         placeholder="스타일 참조 URL"
@@ -278,3 +295,4 @@ export default function Home() {
     </div>
   );
 }
+
