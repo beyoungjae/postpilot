@@ -48,7 +48,7 @@ const prompt = ai.definePrompt({
       sentences: z.array(z.string()).describe('The generated sentences.'),
     }),
   },
-  prompt: `You are an expert at generating engaging social media captions based on images.  Given the following image, generate a list of 3 possible captions for it.
+  prompt: `당신은 이미지에 기반하여 매력적인 소셜 미디어 캡션을 생성하는 전문가입니다. 다음 이미지가 주어지면, 그에 맞는 3가지 가능한 캡션 목록을 한국어로 생성하세요.
 
 Image: {{media url=imageUrl}}
 
@@ -67,3 +67,4 @@ async input => {
   const {output} = await prompt(input);
   return output!;
 });
+
